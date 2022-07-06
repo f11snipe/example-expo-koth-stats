@@ -5,16 +5,17 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import Colors from '../constants/Colors';
 import { MonoText } from './StyledText';
 import { Text, View } from './Themed';
-import useAxios from '../hooks/useAxios';
+import useAxios, { ApiPlayerList } from '../hooks/useAxios';
 
 export default function SearchResults({ subject }: { subject: string }) {
-  const { data, error, loaded } = useAxios(
+  const { data, error, loaded } = useAxios<ApiPlayerList>(
     `http://localhost:8000/api/players?filter[search]=${subject}`,
     'GET'
   );
 
   const stringifiedData = useMemo(() => {
-    return JSON.stringify(data || {}, null, 2);
+    const filtered = data ? data.data.map(row => row.attributes.username) : [];
+    return JSON.stringify(filtered, null, 2);
   }, [data]);
 
   if (loaded) {
@@ -26,13 +27,6 @@ export default function SearchResults({ subject }: { subject: string }) {
   }
 
   return <Text>Loading...</Text>;
-  return (
-    <View>
-      <View style={styles.getStartedContainer}>
-        <Text>Search for: {subject}</Text>
-      </View>
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({
